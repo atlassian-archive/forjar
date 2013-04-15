@@ -46,7 +46,7 @@ class Board(ForgeBase):
     __tablename__ = 'boards'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     deps = [{'name': 'user_id', 'base': User, 'date': 'date'}, ]
@@ -66,8 +66,8 @@ class Pin(ForgeBase):
     __tablename__ = 'pins'
     id = Column(Integer, primary_key=True)
     image = Column(String(100))
-    board_id = Column(Integer, ForeignKey("board.id"), nullable=False)
-    repin_id = Column(Integer, ForeignKey("pin.id"), nullable=True)
+    board_id = Column(Integer, ForeignKey("boards.id"), nullable=False)
+    repin_id = Column(Integer, ForeignKey("pins.id"), nullable=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def forge(self, session=None, date=None):
@@ -88,8 +88,8 @@ class Pin(ForgeBase):
 class Like(ForgeBase):
     __tablename__ = 'likes'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    pin_id = Column(Integer, ForeignKey("pin.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    pin_id = Column(Integer, ForeignKey("pins.id"), nullable=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def forge(self, session=None, date=None):
@@ -106,8 +106,8 @@ class Like(ForgeBase):
 class Follow(ForgeBase):
     __tablename__ = 'follows'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    board_id = Column(Integer, ForeignKey("board.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    board_id = Column(Integer, ForeignKey("boards.id"), nullable=False)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def forge(self, session=None, date=None):
@@ -125,8 +125,8 @@ class Comment(ForgeBase):
     __tablename__ = 'comments'
     id = Column(Integer, primary_key=True)
     text = Column(String(100))
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    pin_id = Column(Integer, ForeignKey("pin.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    pin_id = Column(Integer, ForeignKey("pins.id"), nullable=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def forge(self, session=None, date=None):
@@ -154,12 +154,16 @@ stop = datetime.datetime.now()
 start = stop - datetime.timedelta(days=9)
 dataforge = DataForge(start, stop, session)
 
+clockstart = datetime.datetime.now()
+
 dataforge.forgeBase(User)
 dataforge.forgeBase(Board)
 dataforge.forgeBase(Pin)
 dataforge.forgeBase(Follow)
 dataforge.forgeBase(Like)
 dataforge.forgeBase(Comment)
+
+print 'finished  in', (datetime.datetime.now() - clockstart)
 
 print "users", session.query(User).count()
 print "boards", session.query(Board).count()
