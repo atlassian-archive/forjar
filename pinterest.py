@@ -22,7 +22,7 @@ DropAllTables(engine)
 
 
 class User(ForgeBase):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     fullname = Column(String(100))
     email = Column(String(100))
@@ -43,7 +43,7 @@ class User(ForgeBase):
 
 
 class Board(ForgeBase):
-    __tablename__ = 'board'
+    __tablename__ = 'boards'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
@@ -63,7 +63,7 @@ class Board(ForgeBase):
 
 
 class Pin(ForgeBase):
-    __tablename__ = 'pin'
+    __tablename__ = 'pins'
     id = Column(Integer, primary_key=True)
     image = Column(String(100))
     board_id = Column(Integer, ForeignKey("board.id"), nullable=False)
@@ -86,7 +86,7 @@ class Pin(ForgeBase):
 
 
 class Like(ForgeBase):
-    __tablename__ = 'like'
+    __tablename__ = 'likes'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     pin_id = Column(Integer, ForeignKey("pin.id"), nullable=True)
@@ -104,7 +104,7 @@ class Like(ForgeBase):
 
 
 class Follow(ForgeBase):
-    __tablename__ = 'follow'
+    __tablename__ = 'follows'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     board_id = Column(Integer, ForeignKey("board.id"), nullable=False)
@@ -122,7 +122,7 @@ class Follow(ForgeBase):
 
 
 class Comment(ForgeBase):
-    __tablename__ = 'comment'
+    __tablename__ = 'comments'
     id = Column(Integer, primary_key=True)
     text = Column(String(100))
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
