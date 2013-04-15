@@ -32,3 +32,14 @@ with open('websites.csv', 'rb') as csvfile:
         s.append(row[1])
 
 pickle.dump(s, open('sites.p', 'wb'))
+
+
+# Load Nouns
+nouns = []
+with open('nounlist.txt', 'rb') as nounlist:
+    nouns = []
+    for noun in nounlist.readlines():
+        nouns.append(noun.strip())
+    nouns = list(set(nouns))
+
+pickle.dump(nouns, open('nouns.p', 'wb'))
