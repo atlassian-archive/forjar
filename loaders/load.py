@@ -1,3 +1,7 @@
+'''
+This simple script loads and cleans some example csv data into pickle objects for easier use
+'''
+
 import csv
 import pickle
 

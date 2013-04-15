@@ -1,19 +1,17 @@
 #! /usr/lib/python
 
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, MetaData
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import random
 import datetime
 #engine = create_engine('sqlite:///pinterest.db')
 engine = create_engine('postgresql://postgres@localhost/pinterest')
 
-from genorator import *
+from dataforge import *
 
 Session = sessionmaker(bind=engine)
 session = Session()
 
-Base = declarative_base()
 
 def DropAllTables(engine):
     meta = MetaData(engine)
@@ -22,21 +20,25 @@ def DropAllTables(engine):
 
 DropAllTables(engine)
 
-class User(Base):
+
+class User(ForgeBase):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     fullname = Column(String)
     email = Column(String)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
-class Board(Base):
+class Board(ForgeBase):
     __tablename__ = 'board'
     id = Column(Integer, primary_key=True)
     name = Column(String)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
-class Pin(Base):
+    deps = [{'name': 'user_id', 'base': User, 'date': 'created'}, ]
+
+
+class Pin(ForgeBase):
     __tablename__ = 'pin'
     id = Column(Integer, primary_key=True)
     image = Column(String)
@@ -44,23 +46,21 @@ class Pin(Base):
     repin_id = Column(Integer, ForeignKey("pin.id"), nullable=True)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
-
-class Like(Base):
+class Like(ForgeBase):
     __tablename__ = 'like'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     pin_id = Column(Integer, ForeignKey("pin.id"), nullable=True)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
-class Follow(Base):
+class Follow(ForgeBase):
     __tablename__ = 'follow'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     board_id = Column(Integer, ForeignKey("board.id"), nullable=False)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
-
-class Comment(Base):
+class Comment(ForgeBase):
     __tablename__ = 'comment'
     id = Column(Integer, primary_key=True)
     text = Column(String)
@@ -69,7 +69,7 @@ class Comment(Base):
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
 
-Base.metadata.create_all(engine)
+ForgeBase.metadata.create_all(engine)
 
 def create_user(date=None):
     name = gen_name()
@@ -112,15 +112,16 @@ def create_comment(text=None, user_id=None, pin_id=None, date=None):
 
 
 stop = datetime.datetime.now()
-start = stop - datetime.timedelta(days=365)
-alternator = Alternator(start, stop, session)
+#start = stop - datetime.timedelta(days=365)
+start = stop - datetime.timedelta(days=5)
+dataforge = DataForge(start, stop, session)
 
-alternator.generate(create_user, lambda i: pow(i, 1.02), DAY, lambda i: pow(i, 1.02))
-alternator.generate(create_board, lambda i: 20*pow(i, 1.02), DAY, lambda i: 20*pow(i, 1.02))
-alternator.generate(create_pin, lambda i: 50*pow(i, 1.03), DAY, lambda i: 40*pow(i, 1.01))
-alternator.generate(create_follow, lambda i: 2*pow(i, 1.03), DAY, lambda i: 2*pow(i, 1.01))
-alternator.generate(create_like, lambda i: 80*pow(i, 1.03), DAY, lambda i: 80*pow(i, 1.01))
-alternator.generate(create_comment, lambda i: 50*pow(i, 1.03), DAY, lambda i: 40*pow(i, 1.01))
+#dataforge.forge(create_user, lambda i, x: pow(i, 1.02), DAY, lambda i, x: pow(i, 1.02))
+#dataforge.forge(create_board, lambda i: 20*pow(i, 1.02), DAY, lambda i: 20*pow(i, 1.02))
+#dataforge.forge(create_pin, lambda i: 50*pow(i, 1.03), DAY, lambda i: 40*pow(i, 1.01))
+#dataforge.forge(create_follow, lambda i: 2*pow(i, 1.03), DAY, lambda i: 2*pow(i, 1.01))
+#dataforge.forge(create_like, lambda i: 80*pow(i, 1.03), DAY, lambda i: 80*pow(i, 1.01))
+#dataforge.forge(create_comment, lambda i: 50*pow(i, 1.03), DAY, lambda i: 40*pow(i, 1.01))
 
 print "users", session.query(User).count()
 print "boards", session.query(Board).count()

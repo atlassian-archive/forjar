@@ -4,6 +4,10 @@ import datetime
 import pickle
 import random
 import string
+import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative.api import _declarative_constructor
+
 
 names = pickle.load(open('loaders/names.p', 'rb'))
 sites = pickle.load(open('loaders/sites.p', 'rb'))
@@ -16,6 +20,23 @@ HOUR = 60*MINUTE
 DAY = 24*HOUR
 MONTH = 30*DAY
 YEAR = 365*DAY
+
+class ForgeBase(object):
+    deps = []
+    def __init__(self, **kwargs):
+        forgesession = kwargs.pop('forgesession')
+
+        for dep in self.deps:
+            print 'dep', dep
+            if not hasattr(kwargs, dep['name']):
+                print 'adding kwarg'
+                kwargs[dep['name']] = get_random(deps['Base'], forgesession)
+
+        forgesession.add(_declarative_constructor(self, **kwargs))
+
+ForgeBase = declarative_base( cls = ForgeBase,
+                           constructor = None )
+
 
 def gen_name():
     return "%s %s. %s" % (random.choice(names['first']), random.choice(string.uppercase), random.choice(names['last']))
@@ -30,13 +51,13 @@ def get_random(Table, session, date=None):
     rand_id = random.randrange(0, query.count()) + 1
     return rand_id
 
-class Alternator:
+class DataForge:
     def __init__(self, start, stop, session):
         self.start = start
         self.stop = stop
         self.session = session
 
-    def generate(self, func, ntimes, period, variance):
+    def forge(self, func, ntimes, period, variance):
 
         # the variance can be a function
         var = variance
