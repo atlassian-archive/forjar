@@ -22,24 +22,17 @@ DAY = 24*HOUR
 MONTH = 30*DAY
 YEAR = 365*DAY
 
-
-class NoMatches(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
+date_index = {}
 
 class ForgeBase(object):
-    deps = []
+    count = 0
+
     def __init__(self, **kwargs):
         forgesession = kwargs.pop('forgesession')
-        try:
-            self.forge(session=forgesession, **kwargs)
-        except NoMatches, e:
-            print "no matches", e
-            return
+        self.forge(session=forgesession, **kwargs)
+        kwargs.pop('basetime')
         _declarative_constructor(self, **kwargs)
+        self.__class__.count = self.__class__.count + 1
         forgesession.add(self)
 
 ForgeBase = declarative_base( cls = ForgeBase,
@@ -54,14 +47,24 @@ def gen_email(name):
 def get_noun():
     return random.choice(nouns)
 
-def get_random(Table, session, date=None):
+
+
+def get_random(Table, session, basetime=None):
+    date = basetime
     query = session.query(Table)
-    cnt = query.count()
-    if cnt == 0:
-        print "no matches!"
-        raise NoMatches(Table)
+    cnt = None
     if date is not None:
-        query = query.filter(Table.date < date)
+        if date_index[Table.__tablename__].get(date):
+            #print "got date", date_index[Table.__tablename__][date]
+            rand_id = random.randint(0, date_index[Table.__tablename__][date]) + 1
+            return rand_id
+        else:
+            query = query.filter(Table.date < date)
+            cnt = query.count()
+            date_index[Table.__tablename__][date] = cnt
+            print "missed date", Table.__tablename__, date, cnt
+
+    cnt = cnt or query.count()
     rand_id = random.randrange(0, cnt) + 1
     return rand_id
 
@@ -73,15 +76,16 @@ class DataForge:
         self.session = session
 
     def forgeBase(self, Base, ntimes=None, period=None, variance=None):
+        date_index[Base.__tablename__] = {}
         def f(**kwargs):
             return Base(**kwargs)
 
         ntimes = ntimes or Base.ntimes
         period = period or Base.period
         variance = variance or Base.variance
-        return self.forge(f, ntimes, period, variance)
+        return self.forge(f, ntimes, period, variance, Base)
 
-    def forge(self, func, ntimes, period, variance):
+    def forge(self, func, ntimes, period, variance, Base=None):
 
         # the variance can be a function
         var = variance
@@ -97,10 +101,11 @@ class DataForge:
         for i, time in [(i, start + datetime.timedelta(microseconds=i*period)) for i in range(0, iterations)]:
             v = int(variance(i, time))
             t = int(ntimes(i, time)) + random.randint(-v, v)
-            print func.__name__, t, i, v
+            print Base.__tablename__, i, 'of', iterations
             dts = sorted([random.randint(0, period) for junk in range(0, t)])
             for dt in dts:
                 date = time + datetime.timedelta(microseconds=dt)
-                func(date=date, forgesession=self.session)
+                date_index[Base.__tablename__][time] = Base.count
+                func(date=date, forgesession=self.session, basetime=time)
 
         self.session.commit()

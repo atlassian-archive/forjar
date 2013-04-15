@@ -37,7 +37,7 @@ class User(ForgeBase):
 
     @classmethod
     def ntimes(self, i, time):
-        return pow(i, 1.02)
+        return 8*pow(i, 1.02)
 
     variance = ntimes
 
@@ -50,8 +50,8 @@ class Board(ForgeBase):
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     deps = [{'name': 'user_id', 'base': User, 'date': 'date'}, ]
-    def forge(self, session=None, date=None):
-        self.user_id = get_random(User, session, date=date)
+    def forge(self, session=None, date=None, basetime=None):
+        self.user_id = get_random(User, session, basetime=basetime)
         self.name = get_noun() + 's'
 
 
@@ -70,8 +70,8 @@ class Pin(ForgeBase):
     repin_id = Column(Integer, ForeignKey("pins.id"), nullable=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
-    def forge(self, session=None, date=None):
-        self.board_id = get_random(Board, session, date=date)
+    def forge(self, session=None, date=None, basetime=None):
+        self.board_id = get_random(Board, session, basetime=basetime)
         self.image = get_noun() + '.png'
 
     period = DAY
@@ -92,9 +92,9 @@ class Like(ForgeBase):
     pin_id = Column(Integer, ForeignKey("pins.id"), nullable=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
-    def forge(self, session=None, date=None):
-        self.user_id = get_random(User, session, date=date)
-        self.pin_id = get_random(Pin, session, date=date)
+    def forge(self, session=None, date=None, basetime=None):
+        self.user_id = get_random(User, session, basetime=basetime)
+        self.pin_id = get_random(Pin, session, basetime=basetime)
 
     period = DAY
     @classmethod
@@ -110,9 +110,9 @@ class Follow(ForgeBase):
     board_id = Column(Integer, ForeignKey("boards.id"), nullable=False)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
-    def forge(self, session=None, date=None):
-        self.user_id = get_random(User, session, date=date)
-        self.board_id = get_random(Board, session, date=date)
+    def forge(self, session=None, date=None, basetime=None):
+        self.user_id = get_random(User, session, basetime=basetime)
+        self.board_id = get_random(Board, session, basetime=basetime)
 
     period = DAY
     @classmethod
@@ -129,10 +129,10 @@ class Comment(ForgeBase):
     pin_id = Column(Integer, ForeignKey("pins.id"), nullable=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
-    def forge(self, session=None, date=None):
+    def forge(self, session=None, date=None, basetime=None):
         self.text = "%s %s %s" % (get_noun(), get_noun(), get_noun())
-        self.user_id = get_random(User, session, date=date)
-        self.board_id = get_random(Board, session, date=date)
+        self.user_id = get_random(User, session, basetime=basetime)
+        self.board_id = get_random(Board, session, basetime=basetime)
 
     period = DAY
     @classmethod
@@ -151,7 +151,7 @@ ForgeBase.metadata.create_all(engine)
 
 stop = datetime.datetime.now()
 #start = stop - datetime.timedelta(days=365)
-start = stop - datetime.timedelta(days=9)
+start = stop - datetime.timedelta(days=14)
 dataforge = DataForge(start, stop, session)
 
 clockstart = datetime.datetime.now()
@@ -165,10 +165,10 @@ dataforge.forgeBase(Comment)
 
 print 'finished  in', (datetime.datetime.now() - clockstart)
 
-print "users", session.query(User).count()
-print "boards", session.query(Board).count()
-print "pins", session.query(Pin).count()
-print "follows", session.query(Follow).count()
-print "likes", session.query(Like).count()
-print "comments", session.query(Comment).count()
+print "users", session.query(User).count(), User.count
+print "boards", session.query(Board).count(), Board.count
+print "pins", session.query(Pin).count(), Pin.count
+print "follows", session.query(Follow).count(), Follow.count
+print "likes", session.query(Like).count(), Like.count
+print "comments", session.query(Comment).count(), Comment.count
 
