@@ -24,8 +24,8 @@ DropAllTables(engine)
 class User(ForgeBase):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    fullname = Column(String, length=10)
-    email = Column(String, length=10)
+    fullname = Column(String(100))
+    email = Column(String(100))
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def forge(self, **kwargs):
@@ -45,7 +45,7 @@ class User(ForgeBase):
 class Board(ForgeBase):
     __tablename__ = 'board'
     id = Column(Integer, primary_key=True)
-    name = Column(String, length=10)
+    name = Column(String(100))
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -65,7 +65,7 @@ class Board(ForgeBase):
 class Pin(ForgeBase):
     __tablename__ = 'pin'
     id = Column(Integer, primary_key=True)
-    image = Column(String, length=10)
+    image = Column(String(100))
     board_id = Column(Integer, ForeignKey("board.id"), nullable=False)
     repin_id = Column(Integer, ForeignKey("pin.id"), nullable=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
@@ -124,7 +124,7 @@ class Follow(ForgeBase):
 class Comment(ForgeBase):
     __tablename__ = 'comment'
     id = Column(Integer, primary_key=True)
-    text = Column(String, length=10)
+    text = Column(String(100))
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     pin_id = Column(Integer, ForeignKey("pin.id"), nullable=True)
     date = Column(DateTime, default=datetime.datetime.utcnow)
