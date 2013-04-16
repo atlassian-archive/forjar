@@ -34,6 +34,9 @@ class ForgeBase(object):
         _declarative_constructor(self, **kwargs)
         self.__class__.count = self.__class__.count + 1
         forgesession.add(self)
+        # commit every 100
+        if not self.__class__.count % 100:
+           forgesession.commit()
 
 ForgeBase = declarative_base( cls = ForgeBase,
                            constructor = None )

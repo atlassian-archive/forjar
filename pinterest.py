@@ -146,9 +146,6 @@ class Comment(ForgeBase):
 
 ForgeBase.metadata.create_all(engine)
 
-
-
-
 stop = datetime.datetime.now()
 #start = stop - datetime.timedelta(days=365)
 start = stop - datetime.timedelta(days=14)
