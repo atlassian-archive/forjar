@@ -5,6 +5,7 @@ import pickle
 import random
 import string
 import sqlalchemy
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative.api import _declarative_constructor
 
@@ -73,12 +74,29 @@ def get_random(Table, session, basetime=None):
 
 class DataForge:
 
-    def __init__(self, start, stop, session):
+    def __init__(self, start, stop, engine_url):
+
+        self.engine_url = engine_url
+        self.engine = sqlalchemy.create_engine(engine_url)
+        Session = sqlalchemy.orm.sessionmaker(bind=self.engine)
+        self.session = Session()
         self.start = start
         self.stop = stop
-        self.session = session
 
-    def forgeBase(self, Base, ntimes=None, period=None, variance=None):
+    def create_tables(self):
+        ForgeBase.metadata.create_all(self.engine)
+
+    def drop_tables(self):
+        # drop all tables in the database
+        meta = MetaData(self.engine)
+        meta.reflect()
+        meta.drop_all()
+
+    def count_base(self, Base):
+        """Returns the # of rows for a Base Table given the Base."""
+        self.session.query(Base).count()
+
+    def forge_base(self, Base, ntimes=None, period=None, variance=None):
         date_index[Base.__tablename__] = {}
         def f(**kwargs):
             return Base(**kwargs)

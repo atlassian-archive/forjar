@@ -1,24 +1,21 @@
 #! /usr/lib/python
 
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, MetaData
-from sqlalchemy.orm import sessionmaker
-import random
+#from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, MetaData
 import datetime
-#engine = create_engine('sqlite:///pinterest.db')
-engine = create_engine('postgresql://postgres@localhost/pinterest')
+engine_url = 'sqlite:///pinterest.db'
 
 from dataforge import *
 
-Session = sessionmaker(bind=engine)
-session = Session()
+engine_url = 'postgresql://postgres@localhost/pinterest'
+
+stop = datetime.datetime.now()
+#start = stop - datetime.timedelta(days=365)
+start = stop - datetime.timedelta(days=5)
 
 
-def DropAllTables(engine):
-    meta = MetaData(engine)
-    meta.reflect()
-    meta.drop_all()
+dataforge = DataForge(start, stop, engine_url )
+session = dataforge.session
 
-DropAllTables(engine)
 
 
 class User(ForgeBase):
@@ -144,28 +141,24 @@ class Comment(ForgeBase):
         return 50*pow(i, 1.02)
 
 
-ForgeBase.metadata.create_all(engine)
-
-stop = datetime.datetime.now()
-#start = stop - datetime.timedelta(days=365)
-start = stop - datetime.timedelta(days=14)
-dataforge = DataForge(start, stop, session)
+dataforge.drop_tables()
+dataforge.create_tables()
 
 clockstart = datetime.datetime.now()
 
-dataforge.forgeBase(User)
-dataforge.forgeBase(Board)
-dataforge.forgeBase(Pin)
-dataforge.forgeBase(Follow)
-dataforge.forgeBase(Like)
-dataforge.forgeBase(Comment)
+dataforge.forge_base(User)
+dataforge.forge_base(Board)
+dataforge.forge_base(Pin)
+dataforge.forge_base(Follow)
+dataforge.forge_base(Like)
+dataforge.forge_base(Comment)
 
 print 'finished  in', (datetime.datetime.now() - clockstart)
 
-print "users", session.query(User).count(), User.count
-print "boards", session.query(Board).count(), Board.count
-print "pins", session.query(Pin).count(), Pin.count
-print "follows", session.query(Follow).count(), Follow.count
-print "likes", session.query(Like).count(), Like.count
-print "comments", session.query(Comment).count(), Comment.count
+print "users", dataforge.count_base(User), User.count
+print "boards", dataforge.count_base(Board), Board.count
+print "pins", dataforge.count_base(Pin), Pin.count
+print "follows", dataforge.count_base(Follow), Follow.count
+print "likes", dataforge.count_base(Like), Like.count
+print "comments", dataforge.count_base(Comment), Comment.count
 
