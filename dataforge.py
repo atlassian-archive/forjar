@@ -59,14 +59,12 @@ def get_random(Table, session, basetime=None):
     cnt = None
     if date is not None:
         if date_index[Table.__tablename__].get(date):
-            #print "got date", date_index[Table.__tablename__][date]
             rand_id = random.randint(0, date_index[Table.__tablename__][date]) + 1
             return rand_id
         else:
             query = query.filter(Table.date < date)
             cnt = query.count()
             date_index[Table.__tablename__][date] = cnt
-            print "missed date", Table.__tablename__, date, cnt
 
     cnt = cnt or query.count()
     rand_id = random.randrange(0, cnt) + 1
@@ -82,6 +80,8 @@ class DataForge:
         self.session = Session()
         self.start = start
         self.stop = stop
+        self.bases = []
+        self.clockstart = None
 
     def create_tables(self):
         ForgeBase.metadata.create_all(self.engine)
@@ -92,11 +92,20 @@ class DataForge:
         meta.reflect()
         meta.drop_all()
 
+    def print_results(self):
+        print "finished in", (datetime.datetime.now() - self.clockstart)
+        for Base in self.bases:
+            print Base.__tablename__, self.count_base(Base)
+
     def count_base(self, Base):
         """Returns the # of rows for a Base Table given the Base."""
-        self.session.query(Base).count()
+        return self.session.query(Base).count()
 
     def forge_base(self, Base, ntimes=None, period=None, variance=None):
+        if not self.clockstart:
+            self.clockstart = datetime.datetime.now()
+
+        self.bases.append(Base)
         date_index[Base.__tablename__] = {}
         def f(**kwargs):
             return Base(**kwargs)

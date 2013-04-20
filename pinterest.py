@@ -153,12 +153,4 @@ dataforge.forge_base(Follow)
 dataforge.forge_base(Like)
 dataforge.forge_base(Comment)
 
-print 'finished  in', (datetime.datetime.now() - clockstart)
-
-print "users", dataforge.count_base(User), User.count
-print "boards", dataforge.count_base(Board), Board.count
-print "pins", dataforge.count_base(Pin), Pin.count
-print "follows", dataforge.count_base(Follow), Follow.count
-print "likes", dataforge.count_base(Like), Like.count
-print "comments", dataforge.count_base(Comment), Comment.count
-
+dataforge.print_results()
