@@ -83,6 +83,16 @@ class DataForge:
         self.bases = []
         self.clockstart = None
 
+
+    def forge_all(locs, verbose=True):
+        # TODO XXX: Fix this function... it doesn't work
+        bases = [l for k, l in locs if k != 'ForgeBase' and type(l) == type(ForgeBase)]
+        for Base in bases:
+            self.forge_base(Base)
+
+        if verbose:
+            self.print_results()
+
     def create_tables(self):
         ForgeBase.metadata.create_all(self.engine)
 

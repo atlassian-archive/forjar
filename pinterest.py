@@ -144,7 +144,6 @@ class Comment(ForgeBase):
 dataforge.drop_tables()
 dataforge.create_tables()
 
-clockstart = datetime.datetime.now()
 
 dataforge.forge_base(User)
 dataforge.forge_base(Board)
@@ -152,5 +151,4 @@ dataforge.forge_base(Pin)
 dataforge.forge_base(Follow)
 dataforge.forge_base(Like)
 dataforge.forge_base(Comment)
-
 dataforge.print_results()
