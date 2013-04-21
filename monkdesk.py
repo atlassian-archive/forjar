@@ -2,20 +2,15 @@
 
 #from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, MetaData
 import datetime
-engine_url = 'sqlite:///pinterest.db'
+engine_url = 'sqlite:///monkdesk.db'
 
 from dataforge import *
-
-engine_url = 'postgresql://postgres@localhost/pinterest'
-
 stop = datetime.datetime.now()
 #start = stop - datetime.timedelta(days=365)
 start = stop - datetime.timedelta(days=5)
 
-
 dataforge = DataForge(start, stop, engine_url )
 session = dataforge.session
-
 
 
 class User(ForgeBase):
@@ -29,21 +24,18 @@ class User(ForgeBase):
         self.fullname = gen_user_fullname()
         self.email = gen_email(self.fullname)
 
-
     period = DAY
-
     @classmethod
     def ntimes(self, i, time):
-        return 8*pow(i, 1.02)
+        return 8*pow(i, 1.01)
 
     variance = ntimes
 
 
-class Board(ForgeBase):
-    __tablename__ = 'boards'
+class Company(ForgeBase):
+    __tablename__ = 'companies'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     deps = [{'name': 'user_id', 'base': User, 'date': 'date'}, ]
@@ -59,17 +51,35 @@ class Board(ForgeBase):
     variance = ntimes
 
 
-class Pin(ForgeBase):
-    __tablename__ = 'pins'
+class Agent(ForgeBase):
+    __tablename__ = 'agents'
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    company_id = Column(Integer, ForeignKey("company.id"), nullable=False)
+    level = Column(String(10))
+    date = Column(DateTime, default=datetime.datetime.utcnow)
+
+    period = DAY
+    @classmethod
+    def ntimes(self, i, date):
+        return 20*pow(i, 1.02)
+    variance = ntimes
+
+    def forge(self, session, basetime=None, **kwargs):
+        self.level = random.choice(['agent', 'admin', 'agent', 'agent', 'owner', 'viewer', 'viewer'])
+        self.user_id = get_random(User, session, basetime=basetime)
+        self.company_id = get_random(Company, session, basetime=basetime)
+
+
+class Ticket(ForgeBase):
+    __tablename__ = 'tickets'
     id = Column(Integer, primary_key=True)
-    image = Column(String(100))
-    board_id = Column(Integer, ForeignKey("boards.id"), nullable=False)
-    repin_id = Column(Integer, ForeignKey("pins.id"), nullable=True)
+    submitter_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    assigned_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    status = Column(String(10))
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def forge(self, session, date=None, basetime=None):
-        self.board_id = get_random(Board, session, basetime=basetime)
-        self.image = get_noun() + '.png'
+        self.status = "open"
 
     period = DAY
     @classmethod
@@ -80,42 +90,32 @@ class Pin(ForgeBase):
     def variance(self, i, date):
         return 30*pow(i, 1.03)
 
+class TicketComment(ForgeBase):
+    __tablename__ = 'ticketcomments'
 
-
-class Like(ForgeBase):
-    __tablename__ = 'likes'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    pin_id = Column(Integer, ForeignKey("pins.id"), nullable=True)
+    commenter_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    ticket_id = Column(Integer, ForeignKey("ticket.id"), nullable=False)
+    text = Column(String(1000))
+    source = Column(String(10))
+    public = Column(Boolean, default=False)
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def forge(self, session, date=None, basetime=None):
-        self.user_id = get_random(User, session, basetime=basetime)
-        self.pin_id = get_random(Pin, session, basetime=basetime)
+        self.text = gen_random_text()
+        self.public = (random.randint(0, 8) == 2)
+        self.source = random.choice(['web', 'email', 'email', 'email', 'web', 'mobile', 'chat', 'api'])
+        self.commenter_id = get_random(User, session, basetime=basetime)
+        self.ticket_id = get_random(Ticket, session, basetime=basetime)
 
-    period = DAY
-    @classmethod
-    def ntimes(self, i, date):
-        return 80*pow(i, 1.02)
-    variance = ntimes
-
-
-class Follow(ForgeBase):
-    __tablename__ = 'follows'
+class Attachment(ForgeBase):
+    __tablename__ = 'attachment'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    board_id = Column(Integer, ForeignKey("boards.id"), nullable=False)
-    date = Column(DateTime, default=datetime.datetime.utcnow)
+    ticketcomment_id = Column(Integer, ForeignKey("ticketcomments.id"), nullable=False)
+    image = Column(String(100))
 
-    def forge(self, session, date=None, basetime=None):
-        self.user_id = get_random(User, session, basetime=basetime)
-        self.board_id = get_random(Board, session, basetime=basetime)
-
-    period = DAY
-    @classmethod
-    def ntimes(self, i, date):
-        return 2*pow(i, 1.02)
-    variance = ntimes
+    def forge(self, session, basetime):
+        self.ticketcomment_id = get_random(TicketComment, session, basetime=basetime)
+        self.image = get_noun() + '.png'
 
 
 class Comment(ForgeBase):
