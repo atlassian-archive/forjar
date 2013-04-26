@@ -5,7 +5,7 @@ import pickle
 import random
 import string
 import sqlalchemy
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, MetaData
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, MetaData, Boolean, Date, Enum, Float, Numeric, PickleType, Text, Time
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative.api import _declarative_constructor
 
@@ -27,7 +27,7 @@ date_index = {}
 
 class ForgeBase(object):
     count = 0
-
+    ntimes = 0
     def __init__(self, **kwargs):
         forgesession = kwargs.pop('forgesession')
         self.forge(session=forgesession, **kwargs)
@@ -39,11 +39,27 @@ class ForgeBase(object):
         if not self.__class__.count % 100:
            forgesession.commit()
 
+        self.post_forge(forgesession, **kwargs)
+
+    def forge(self, session, **kwargs):
+        pass
+
+    def post_forge(self, session, **kwargs):
+        pass
+
+
+
 ForgeBase = declarative_base( cls = ForgeBase,
                            constructor = None )
 
+def gen_firstname():
+    return random.choice(names['first'])
+
+def gen_lastname():
+    return random.choice(string.uppercase), random.choice(names['last'])
+
 def gen_user_fullname():
-    return "%s %s. %s" % (random.choice(names['first']), random.choice(string.uppercase), random.choice(names['last']))
+    return "%s %s. %s" % (gen_firstname(), gen_lastname())
 
 def gen_email(name):
     return "%s@%s" % (name.split(' ')[0], random.choice(sites))
@@ -54,22 +70,25 @@ def get_noun():
 def gen_random_text(low_length=1, high_length=10):
     return ' '.join([get_noun() for a in range(0, random.randint(low_length, high_length))])
 
+def get_random_choice(cnt):
+    return random.randrange(0, cnt)
 
-def get_random(Table, session, basetime=None):
+def get_random(Table, session, basetime=None, after=None, choicefunc=get_random_choice):
     date = basetime
     query = session.query(Table)
     cnt = None
     if date is not None:
-        if date_index[Table.__tablename__].get(date):
+        if date_index.get(Table.__tablename__, {}).get(date):
             rand_id = random.randint(0, date_index[Table.__tablename__][date]) + 1
             return rand_id
         else:
             query = query.filter(Table.date < date)
             cnt = query.count()
+            date_index[Table.__tablename__] = date_index.get(Table.__tablename__, {})
             date_index[Table.__tablename__][date] = cnt
 
     cnt = cnt or query.count()
-    rand_id = random.randrange(0, cnt) + 1
+    rand_id = get_random_choice(cnt) + 1
     return rand_id
 
 class DataForge:
@@ -84,7 +103,6 @@ class DataForge:
         self.stop = stop
         self.bases = []
         self.clockstart = None
-
 
     def forge_all(locs, verbose=True):
         # TODO XXX: Fix this function... it doesn't work
