@@ -161,7 +161,7 @@ class DataForge:
         for i, time in [(i, start + datetime.timedelta(microseconds=i*period)) for i in range(0, iterations)]:
             v = int(variance(i, time))
             t = int(ntimes(i, time)) + random.randint(-v, v)
-            print Base.__tablename__, i, 'of', iterations
+            print Base.__tablename__, i, 'of', iterations, '-', t
             dts = sorted([random.randint(0, period) for junk in range(0, t)])
             for dt in dts:
                 date = time + datetime.timedelta(microseconds=dt)
