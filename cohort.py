@@ -24,7 +24,7 @@ class User(ForgeBase):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return 10*pow(i, 1.15)
+        return 2*pow(i, 1.05)
 
     variance = ntimes
 
@@ -47,7 +47,7 @@ class Event(ForgeBase):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return 8*pow(i, 1.15)
+        return pow(i, 1.06)
 
     variance = ntimes
 
@@ -58,4 +58,3 @@ dataforge.create_tables()
 dataforge.forge_base(User)
 dataforge.forge_base(Event)
 dataforge.print_results()
-#print 'users', dataforge.count_base(User)
