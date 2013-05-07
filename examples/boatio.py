@@ -74,7 +74,7 @@ def main(forjar):
     forjar.forge_base(User)
     forjar.forge_base(Boat)
     forjar.forge_base(Trip)
-    forjar.commit()
+    forjar.session.commit()
     forjar.print_results()
 
 if __name__ == "__main__":
