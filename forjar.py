@@ -56,7 +56,7 @@ def gen_firstname():
     return random.choice(names['first'])
 
 def gen_lastname():
-    return random.choice(string.uppercase), random.choice(names['last'])
+    return random.choice(names['last'])
 
 def gen_user_fullname():
     return "%s %s. %s" % (gen_firstname(), random.choice(string.uppercase), gen_lastname())
