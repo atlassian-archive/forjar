@@ -58,8 +58,10 @@ def gen_firstname():
 def gen_lastname():
     return random.choice(names['last'])
 
-def gen_user_fullname():
-    return "%s %s. %s" % (gen_firstname(), random.choice(string.uppercase), gen_lastname())
+def gen_user_fullname(middle=False):
+    if middle:
+        return "%s %s. %s" % (gen_firstname(), random.choice(string.uppercase), gen_lastname())
+    return "%s %s" % (gen_firstname(), gen_lastname())
 
 def gen_email(name):
     return "%s@%s" % (name.split(' ')[0].lower(), random.choice(sites))
