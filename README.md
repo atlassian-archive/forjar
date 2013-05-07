@@ -12,5 +12,13 @@ Data Forge is a data generator for mocking datasets. You setup a schema, a perio
 
 There is currently one example.  Run
 
-python examples/boatio.py
+    python examples/boatio.py
+
+The default settings will run the simulation for 365 days and pump it to the sqlite database called forjer.db.
+
+To run the simulation for 150 days into the database at sqlite:///boatio.sqlite use
+
+    python examples/boatio.py -d 150 -e sqlite:///boatio.sqlite
+
+
 
