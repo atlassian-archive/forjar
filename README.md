@@ -12,5 +12,5 @@ Data Forge is a data generator for mocking datasets. You setup a schema, a perio
 
 There is currently one example.  Run
 
-python pinterest.py
+python examples/boatio.py
 

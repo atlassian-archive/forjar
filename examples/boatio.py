@@ -1,18 +1,13 @@
 #! /usr/lib/python
 
 import datetime
-engine_url = 'sqlite:///boatio.db'
 
-from dataforge import *
+from forjar import *
 stop = datetime.datetime.now()
-start = stop - datetime.timedelta(days=30*8)
-start = stop - datetime.timedelta(days=5)
+#start = stop - datetime.timedelta(days=30*8)
+start = stop - datetime.timedelta(days=50)
 
-dataforge = DataForge(start, stop, engine_url)
-session = dataforge.session
-
-
-class User(ForgeBase):
+class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String(40))
@@ -21,55 +16,70 @@ class User(ForgeBase):
 
     def forge(self, **kwargs):
         self.name = gen_firstname()
-        self.email = gen_email(self.fullname)
+        self.email = gen_email(self.name)
 
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return 2*pow(i, 1.05)
+        return 5*pow(i, 1.05)
 
     variance = ntimes
 
-class Boat(ForgeBase):
+class Boat(Base):
     __tablename__ = 'boats'
     id = Column(Integer, primary_key=True)
     name = Column(String(40))
+    type = Column(String(40))
+    model = Column(String(40))
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(DateTime, default=datetime.datetime.utcnow)
+    price_per_hour = Column(Float, default=200)
 
-    def forge(self, **):
+    def forge(self, session, basetime, date, **kwargs):
         self.name = gen_firstname()
-
-    period = Week
-    def ntimes(self, i, time):
-        return 2*pow(i, 1.05)
-
-
-class Trip(ForgeBase):
-    __tablename__ = 'events'
-    id = Column(Integer, primary_key=True)
-    key = Column(String(10))
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    start = Column(DateTime, default=datetime.datetime.utcnow)
-
-    def forge(self, session, date=None, basetime=None):
-        self.key = random.choice(['like', 'like', 'like', 'like', 'share', 'comment', 'share'])
-
-        def get_log_random_choice(cnt):
-            return int(pow(random.randrange(0, cnt*cnt), .5))
-
-        self.user_id = get_random(User, session, basetime=basetime, choicefunc=get_log_random_choice)
+        self.type = random.choice(['sail', 'speed', 'sail', 'banana', 'house', 'sail', 'speed', 'speed', 'sail', 'yacht'])
+        self.model = 'unknown'
+        self.price_per_hour = max(random.gauss(200, 60), 20)
+        self.owner_id = get_random(User, session, basetime=basetime)
 
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return pow(i, 1.06)
+        return 1*pow(i, 1.05)
+
+    variance = ntimes
+
+class Trip(Base):
+    __tablename__ = 'trips'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    boat_id = Column(Integer, ForeignKey("boats.id"), nullable=False)
+    date = Column(DateTime, default=datetime.datetime.utcnow)
+    start = Column(DateTime, default=datetime.datetime.utcnow)
+    hours = Column(Integer, default=2)
+
+    def forge(self, session, date=None, basetime=None):
+        self.start = date + datetime.timedelta(days=random.randint(2, 20))
+        self.user_id = get_random(User, session, basetime=basetime)
+        self.boat_id = get_random(Boat, session, basetime=basetime)
+
+    period = DAY
+    @classmethod
+    def ntimes(self, i, time):
+        return 1*pow(i, 1.06)
 
     variance = ntimes
 
 
-dataforge.drop_tables()
-dataforge.create_tables()
 
-dataforge.forge_base(User)
-dataforge.forge_base(Event)
-dataforge.print_results()
+def main(forjar):
+    forjar.forge_base(User)
+    forjar.session.commit()
+    forjar.forge_base(Boat)
+    forjar.session.commit()
+    forjar.forge_base(Trip)
+    forjar.session.commit()
+    forjar.print_results()
+
+if __name__ == "__main__":
+    forjar_main(main=main)

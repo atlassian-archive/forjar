@@ -20,6 +20,7 @@ SECOND = 1000000*MICROSECOND
 MINUTE = 60*SECOND
 HOUR = 60*MINUTE
 DAY = 24*HOUR
+WEEK = 7*DAY
 MONTH = 30*DAY
 YEAR = 365*DAY
 
@@ -61,7 +62,7 @@ def gen_user_fullname():
     return "%s %s. %s" % (gen_firstname(), gen_lastname())
 
 def gen_email(name):
-    return "%s@%s" % (name.split(' ')[0], random.choice(sites))
+    return "%s@%s" % (name.split(' ')[0].lower(), random.choice(sites))
 
 def get_noun():
     return random.choice(nouns)
@@ -86,9 +87,13 @@ def get_random(Table, session, basetime=None, after=None, choicefunc=get_random_
             date_index[Table.__tablename__] = date_index.get(Table.__tablename__, {})
             date_index[Table.__tablename__][date] = cnt
 
-    cnt = cnt or query.count()
+    cnt = cnt or query.count() or 1
     rand_id = get_random_choice(cnt) + 1
     return rand_id
+
+def get_last(Table):
+    """return the latest"""
+    return Base.count
 
 class Forjar:
 
@@ -173,13 +178,19 @@ class Forjar:
         self.session.commit()
 
 
-def forjar_main(main, start, stop=datetime.datetime.now(), engine="sqlite:///forjar.db"):
+def forjar_main(main, start=datetime.datetime.now() - datetime.timedelta(days=365), stop=datetime.datetime.now(), engine_url="sqlite:///forjar.db"):
     import optparse
     p = optparse.OptionParser()
-    p.add_option('--engine', '-e', default=engine)
+    p.add_option('--engine_url', '-e', default=engine_url)
+    p.add_option('--days', '-d', default=None)
     options, arguments = p.parse_args()
 
-    forjar = Forjar(start, stop, options.engine)
+    print 'days', options.days
+    if options.days is not None:
+        stop = datetime.datetime.now()
+        start = stop - datetime.timedelta(days=int(options.days))
+
+    forjar = Forjar(start, stop, options.engine_url)
     main(forjar)
 
 

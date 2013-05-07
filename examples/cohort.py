@@ -2,7 +2,7 @@
 
 import datetime
 
-from dataforge import *
+from forjar import *
 stop = datetime.datetime.now()
 start = stop - datetime.timedelta(days=30*8)
 start = stop - datetime.timedelta(days=5)
@@ -48,7 +48,6 @@ class Event(Base):
 
 
 def main(forjar):
-
     forjar.forge_base(User)
     forjar.forge_base(Event)
     forjar.print_results()
