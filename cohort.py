@@ -8,11 +8,7 @@ stop = datetime.datetime.now()
 start = stop - datetime.timedelta(days=30*8)
 start = stop - datetime.timedelta(days=5)
 
-dataforge = DataForge(start, stop, engine_url )
-session = dataforge.session
-
-
-class User(ForgeBase):
+class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String(40))
@@ -29,7 +25,7 @@ class User(ForgeBase):
     variance = ntimes
 
 
-class Event(ForgeBase):
+class Event(Base):
     __tablename__ = 'events'
     id = Column(Integer, primary_key=True)
     key = Column(String(10))
@@ -52,9 +48,14 @@ class Event(ForgeBase):
     variance = ntimes
 
 
-dataforge.drop_tables()
-dataforge.create_tables()
+def main(forjar):
 
-dataforge.forge_base(User)
-dataforge.forge_base(Event)
-dataforge.print_results()
+    forjar.drop_tables()
+    forjar.create_tables()
+
+    forjar.forge_base(User)
+    forjar.forge_base(Event)
+    forjar.print_results()
+
+if __name__ == "__main__":
+    forjar_main(main=main, start=start, stop=stop)

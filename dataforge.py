@@ -25,7 +25,7 @@ YEAR = 365*DAY
 
 date_index = {}
 
-class ForgeBase(object):
+class Base(object):
     count = 0
     ntimes = 0
     def __init__(self, **kwargs):
@@ -49,8 +49,7 @@ class ForgeBase(object):
 
 
 
-ForgeBase = declarative_base( cls = ForgeBase,
-                           constructor = None )
+Base = declarative_base(cls=Base, constructor=None )
 
 def gen_firstname():
     return random.choice(names['first'])
@@ -91,7 +90,7 @@ def get_random(Table, session, basetime=None, after=None, choicefunc=get_random_
     rand_id = get_random_choice(cnt) + 1
     return rand_id
 
-class DataForge:
+class Forjar:
 
     def __init__(self, start, stop, engine_url):
 
@@ -106,7 +105,7 @@ class DataForge:
 
     def forge_all(locs, verbose=True):
         # TODO XXX: Fix this function... it doesn't work
-        bases = [l for k, l in locs if k != 'ForgeBase' and type(l) == type(ForgeBase)]
+        bases = [l for k, l in locs if k != 'Base' and type(l) == type(Base)]
         for Base in bases:
             self.forge_base(Base)
 
@@ -114,7 +113,7 @@ class DataForge:
             self.print_results()
 
     def create_tables(self):
-        ForgeBase.metadata.create_all(self.engine)
+        Base.metadata.create_all(self.engine)
 
     def drop_tables(self):
         # drop all tables in the database
@@ -169,3 +168,16 @@ class DataForge:
                 func(date=date, forgesession=self.session, basetime=time)
 
         self.session.commit()
+
+
+def forjar_main(main, start, stop=datetime.datetime.now(), engine="sqlite:///forjar.db"):
+    import optparse
+    p = optparse.OptionParser()
+    p.add_option('--engine', '-e', default=engine)
+    options, arguments = p.parse_args()
+    print 'Hello %s' % options.engine
+
+    forjar = Forjar(start, stop, options.engine)
+    main(forjar)
+
+
