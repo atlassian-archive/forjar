@@ -3,9 +3,6 @@
 import datetime
 
 from forjar import *
-stop = datetime.datetime.now()
-#start = stop - datetime.timedelta(days=30*8)
-start = stop - datetime.timedelta(days=50)
 
 class User(Base):
     __tablename__ = 'users'
@@ -75,11 +72,9 @@ class Trip(Base):
 
 def main(forjar):
     forjar.forge_base(User)
-    forjar.session.commit()
     forjar.forge_base(Boat)
-    forjar.session.commit()
     forjar.forge_base(Trip)
-    forjar.session.commit()
+    forjar.commit()
     forjar.print_results()
 
 if __name__ == "__main__":
