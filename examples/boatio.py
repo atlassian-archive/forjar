@@ -21,7 +21,7 @@ class User(Base):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return 5*pow(i, 1.05)
+        return 5*pow(i, 1.005)
 
     variance = ntimes
 
@@ -45,7 +45,7 @@ class Boat(Base):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return 1*pow(i, 1.05)
+        return 1*pow(i, 1.005)
 
     variance = ntimes
 
@@ -66,7 +66,7 @@ class Trip(Base):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return 1*pow(i, 1.06)
+        return 1*pow(i, 1.006)
 
     variance = ntimes
 
