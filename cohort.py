@@ -50,9 +50,6 @@ class Event(Base):
 
 def main(forjar):
 
-    forjar.drop_tables()
-    forjar.create_tables()
-
     forjar.forge_base(User)
     forjar.forge_base(Event)
     forjar.print_results()

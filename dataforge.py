@@ -103,6 +103,9 @@ class Forjar:
         self.bases = []
         self.clockstart = None
 
+        self.drop_tables()
+        self.create_tables()
+
     def forge_all(locs, verbose=True):
         # TODO XXX: Fix this function... it doesn't work
         bases = [l for k, l in locs if k != 'Base' and type(l) == type(Base)]
