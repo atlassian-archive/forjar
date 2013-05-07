@@ -178,7 +178,6 @@ def forjar_main(main, start, stop=datetime.datetime.now(), engine="sqlite:///for
     p = optparse.OptionParser()
     p.add_option('--engine', '-e', default=engine)
     options, arguments = p.parse_args()
-    print 'Hello %s' % options.engine
 
     forjar = Forjar(start, stop, options.engine)
     main(forjar)

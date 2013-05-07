@@ -1,7 +1,6 @@
 #! /usr/lib/python
 
 import datetime
-engine_url = 'sqlite:///monkdesk.db'
 
 from dataforge import *
 stop = datetime.datetime.now()
