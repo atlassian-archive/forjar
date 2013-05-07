@@ -60,6 +60,7 @@ class Trip(Base):
 
     def forge(self, session, date=None, basetime=None):
         self.start = date + datetime.timedelta(days=random.randint(2, 20))
+        self.hours = random.randint(2, 12)
         self.user_id = get_random(User, session, basetime=basetime)
         self.boat_id = get_random(Boat, session, basetime=basetime)
 
