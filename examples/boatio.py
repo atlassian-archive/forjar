@@ -15,7 +15,7 @@ class User(Base):
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
     def forge(self, **kwargs):
-        self.name = gen_firstname()
+        self.name = gen_user_fullname()
         self.email = gen_email(self.name)
 
     period = DAY
