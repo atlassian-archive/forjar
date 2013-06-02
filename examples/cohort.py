@@ -19,7 +19,7 @@ class User(Base):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return 2*pow(i, 1.05)
+        return 2*pow(1.05, i)
 
     variance = ntimes
 
@@ -42,15 +42,15 @@ class Event(Base):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return pow(i, 1.06)
+        return pow(1.06, i)
 
     variance = ntimes
 
 
-def main(forjar):
-    forjar.forge_base(User)
-    forjar.forge_base(Event)
-    forjar.print_results()
+def main(forjaria):
+    forjaria.forge_base(User)
+    forjaria.forge_base(Event)
+    forjaria.print_results()
 
 if __name__ == "__main__":
     forjar_main(main=main, start=start, stop=stop)

@@ -97,7 +97,7 @@ def get_last(Table):
     """return the latest"""
     return Base.count
 
-class Forjar:
+class Forjaria:
 
     def __init__(self, start, stop, engine_url):
 
@@ -186,13 +186,11 @@ def forjar_main(main, start=datetime.datetime.now() - datetime.timedelta(days=36
     p.add_option('--engine_url', '-e', default=engine_url)
     p.add_option('--days', '-d', default=None)
     options, arguments = p.parse_args()
-
-    print 'days', options.days
     if options.days is not None:
         stop = datetime.datetime.now()
         start = stop - datetime.timedelta(days=int(options.days))
 
-    forjar = Forjar(start, stop, options.engine_url)
-    main(forjar)
+    forjaria = Forjaria(start, stop, options.engine_url)
+    main(forjaria)
 
 

@@ -70,12 +70,12 @@ class Trip(Base):
 
 
 
-def main(forjar):
-    forjar.forge_base(User)
-    forjar.forge_base(Boat)
-    forjar.forge_base(Trip)
-    forjar.session.commit()
-    forjar.print_results()
+def main(forjaria):
+    forjaria.forge_base(User)
+    forjaria.forge_base(Boat)
+    forjaria.forge_base(Trip)
+    forjaria.session.commit()
+    forjaria.print_results()
 
 if __name__ == "__main__":
     forjar_main(main=main)
