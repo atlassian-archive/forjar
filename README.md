@@ -18,6 +18,8 @@ The default settings will run the simulation for 365 days and pump it to the sql
 To run the simulation for 150 days into the database at sqlite:///boatio.sqlite use
 
     python examples/boatio.py -d 150 -e sqlite:///boatio.sqlite
+    
+    python examples/salesfarce.py -d 1 -e 'mysql://root:support13@localhost/salesfarce'
 
 
 

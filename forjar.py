@@ -13,12 +13,14 @@ from sqlalchemy.ext.declarative.api import _declarative_constructor
 names = pickle.load(open('loaders/names.p', 'rb'))
 sites = pickle.load(open('loaders/sites.p', 'rb'))
 nouns = pickle.load(open('loaders/nouns.p', 'rb'))
+suffix = pickle.load(open('loaders/suffix.p', 'rb'))
 
 # Periods
 MICROSECOND = 1
 SECOND = 1000000*MICROSECOND
 MINUTE = 60*SECOND
 HOUR = 60*MINUTE
+FOURHOUR = 240*MINUTE
 DAY = 24*HOUR
 WEEK = 7*DAY
 MONTH = 30*DAY
@@ -66,9 +68,18 @@ def gen_user_fullname(middle=False):
 def gen_email(name):
     return "%s@%s" % (name.split(' ')[0].lower(), random.choice(sites))
 
+def gen_full_email(name, site):
+    return "%s@%s" % (name.split(' ')[0].lower(), site)
+
 def get_noun():
     return random.choice(nouns)
-
+    
+def get_suffix():
+    return random.choice(suffix)
+    
+def gen_account():
+	return "%s %s" % (get_noun().title(), get_suffix().title())
+	
 def gen_random_text(low_length=1, high_length=10):
     return ' '.join([get_noun() for a in range(0, random.randint(low_length, high_length))])
 
@@ -97,7 +108,7 @@ def get_last(Table):
     """return the latest"""
     return Base.count
 
-class Forjaria:
+class Forjar:
 
     def __init__(self, start, stop, engine_url):
 
@@ -186,11 +197,13 @@ def forjar_main(main, start=datetime.datetime.now() - datetime.timedelta(days=36
     p.add_option('--engine_url', '-e', default=engine_url)
     p.add_option('--days', '-d', default=None)
     options, arguments = p.parse_args()
+
+    print 'days', options.days
     if options.days is not None:
         stop = datetime.datetime.now()
         start = stop - datetime.timedelta(days=int(options.days))
 
-    forjaria = Forjaria(start, stop, options.engine_url)
-    main(forjaria)
+    forjar = Forjar(start, stop, options.engine_url)
+    main(forjar)
 
 
