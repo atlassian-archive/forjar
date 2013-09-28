@@ -165,5 +165,20 @@ def forjar_main(main, start=datetime.datetime.now() - datetime.timedelta(days=36
 
     forjaria = Forjaria(start, stop, options.engine_url)
     main(forjaria)
+    return forjaria
 
 
+
+
+
+def gen_default_main(locs):
+    ''' returns a main function that is automatically generated based on the the variables defined in locs '''
+    def default_main(forjaria):
+        for key, f in locs.items():
+            if type(f) == sqlalchemy.ext.declarative.api.DeclarativeMeta and hasattr(f, '__tablename__'):
+                forjaria.forge_base(f)
+        forjaria.print_results()
+    return default_main
+
+if __name__ == "__main__":
+    forjar_main(main=default_main, start=start, stop=stop)

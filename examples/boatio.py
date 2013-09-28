@@ -70,12 +70,5 @@ class Trip(Base):
 
     variance = ntimes
 
-def main(forjaria):
-    forjaria.forge_base(User)
-    forjaria.forge_base(Boat)
-    forjaria.forge_base(Trip)
-    forjaria.session.commit()
-    forjaria.print_results()
-
 if __name__ == "__main__":
-    forjar_main(main=main)
+    forjar_main(main=gen_default_main(locals()),)

@@ -7,6 +7,8 @@ stop = datetime.datetime.now()
 start = stop - datetime.timedelta(days=30*8)
 start = stop - datetime.timedelta(days=5)
 
+from forjar.generators.users import gen_firstname
+
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)

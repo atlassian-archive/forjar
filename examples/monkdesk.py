@@ -3,16 +3,14 @@
 import datetime
 engine_url = 'sqlite:///monkdesk.db'
 
-from dataforge import *
+from forjar import *
 stop = datetime.datetime.now()
 #start = stop - datetime.timedelta(days=365)
 start = stop - datetime.timedelta(days=5)
 
-dataforge = DataForge(start, stop, engine_url )
-session = dataforge.session
 
 
-class User(ForgeBase):
+class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     fullname = Column(String(100))
@@ -24,7 +22,7 @@ class User(ForgeBase):
         self.email = gen_email(self.fullname)
 
 
-class Plan(ForgeBase):
+class Plan(Base):
     __tablename__ = 'plan'
     id = Column(Integer, primary_key=True)
     name = Column(String(20))
@@ -32,7 +30,7 @@ class Plan(ForgeBase):
     price_per_user = Column(Float, default=0)
 
 
-class Company(ForgeBase):
+class Company(Base):
     __tablename__ = 'companies'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
@@ -55,7 +53,7 @@ class Company(ForgeBase):
     variance = ntimes
 
 
-class Agent(ForgeBase):
+class Agent(Base):
     __tablename__ = 'agents'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -77,7 +75,7 @@ class Agent(ForgeBase):
             self.company_id = get_random(Company, session, basetime=basetime)
 
 
-class Ticket(ForgeBase):
+class Ticket(Base):
     __tablename__ = 'tickets'
     id = Column(Integer, primary_key=True)
     submitter_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -98,7 +96,7 @@ class Ticket(ForgeBase):
     def variance(self, i, date):
         return 30*pow(i, 1.03)
 
-class TicketComment(ForgeBase):
+class TicketComment(Base):
     __tablename__ = 'ticketcomments'
     id = Column(Integer, primary_key=True)
     commenter_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -118,7 +116,7 @@ class TicketComment(ForgeBase):
     period = DAY
     ntimes = 8
 
-class Attachment(ForgeBase):
+class Attachment(Base):
     __tablename__ = 'attachment'
     id = Column(Integer, primary_key=True)
     ticketcomment_id = Column(Integer, ForeignKey("ticketcomments.id"), nullable=False)
@@ -128,21 +126,11 @@ class Attachment(ForgeBase):
         self.ticketcomment_id = get_random(TicketComment, session, basetime=basetime)
         self.image = get_noun() + '.png'
 
+Plan(name='Regular', price_per_user='24.00', period='month', basetime=None)
+Plan(name='Plus', price_per_user='49.00',  period='month', basetime=None)
+Plan(name='Enterprise', price_per_user='99.00', period='month', basetime=None)
 
-dataforge.drop_tables()
-dataforge.create_tables()
+if __name__ == "__main__":
+    forjar_main(main=default_main, start=start, stop=stop)
 
 
-Plan(name='Regular', price_per_user='24.00', period='month', forgesession=dataforge.session, basetime=None)
-Plan(name='Plus', price_per_user='49.00', period='month', forgesession=dataforge.session, basetime=None)
-Plan(name='Enterprise', price_per_user='99.00', period='month', forgesession=dataforge.session, basetime=None)
-
-dataforge.forge_base(Company)
-#dataforge.forge_base(Agent)
-#dataforge.forge_base(Ticket)
-#dataforge.forge_base(TicketComment)
-#dataforge.forge_base(Attachment)
-dataforge.print_results()
-print 'users', dataforge.count_base(User)
-print 'agents', dataforge.count_base(Agent)
-print 'plans', dataforge.count_base(Plan)
