@@ -3,6 +3,8 @@
 import datetime
 
 from forjar import *
+from forjar.generators.users import gen_firstname, gen_user_fullname
+from forjar.generators.sites import gen_email
 
 class User(Base):
     __tablename__ = 'users'
@@ -67,8 +69,6 @@ class Trip(Base):
         return 1*pow(1.006, i)
 
     variance = ntimes
-
-
 
 def main(forjaria):
     forjaria.forge_base(User)

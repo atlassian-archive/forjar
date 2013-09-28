@@ -2,17 +2,12 @@
 
 import datetime
 import pickle
-import random
 import string
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, MetaData, Boolean, Date, Enum, Float, Numeric, PickleType, Text, Time
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative.api import _declarative_constructor
-
-
-names = pickle.load(open('loaders/names.p', 'rb'))
-sites = pickle.load(open('loaders/sites.p', 'rb'))
-nouns = pickle.load(open('loaders/nouns.p', 'rb'))
+import random
 
 # Periods
 MICROSECOND = 1
@@ -48,29 +43,7 @@ class Base(object):
     def post_forge(self, session, **kwargs):
         pass
 
-
-
-Base = declarative_base(cls=Base, constructor=None )
-
-def gen_firstname():
-    return random.choice(names['first'])
-
-def gen_lastname():
-    return random.choice(names['last'])
-
-def gen_user_fullname(middle=False):
-    if middle:
-        return "%s %s. %s" % (gen_firstname(), random.choice(string.uppercase), gen_lastname())
-    return "%s %s" % (gen_firstname(), gen_lastname())
-
-def gen_email(name):
-    return "%s@%s" % (name.split(' ')[0].lower(), random.choice(sites))
-
-def get_noun():
-    return random.choice(nouns)
-
-def gen_random_text(low_length=1, high_length=10):
-    return ' '.join([get_noun() for a in range(0, random.randint(low_length, high_length))])
+Base = declarative_base(cls=Base, constructor=None)
 
 def get_random_choice(cnt):
     return random.randrange(0, cnt)
