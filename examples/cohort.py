@@ -48,11 +48,5 @@ class Event(Base):
 
     variance = ntimes
 
-
-def main(forjaria):
-    forjaria.forge_base(User)
-    forjaria.forge_base(Event)
-    forjaria.print_results()
-
 if __name__ == "__main__":
-    forjar_main(main=main, start=start, stop=stop)
+    forjar_main(main=gen_default_main(locals()),)
