@@ -22,8 +22,11 @@ YEAR = 365*DAY
 date_index = {}
 
 class Base(object):
+    period = DAY # the default period for incrementing these objects
     count = 0
     ntimes = 0
+    variance = 0
+
     def __init__(self, **kwargs):
         forgesession = kwargs.pop('forgesession')
         self.forge(session=forgesession, **kwargs)
@@ -42,6 +45,7 @@ class Base(object):
 
     def post_forge(self, session, **kwargs):
         pass
+
 
 Base = declarative_base(cls=Base, constructor=None)
 
@@ -128,7 +132,6 @@ class Forjaria:
         return self.forge(f, ntimes, period, variance, Base)
 
     def forge(self, func, ntimes, period, variance, Base=None):
-
         # the variance can be a function
         var = variance
         if type(variance) == int:
@@ -167,16 +170,15 @@ def forjar_main(main, start=datetime.datetime.now() - datetime.timedelta(days=36
     main(forjaria)
     return forjaria
 
-
-
-
-
-def gen_default_main(locs):
+def gen_default_main(locs, forjar_extras=None):
     ''' returns a main function that is automatically generated based on the the variables defined in locs '''
     def default_main(forjaria):
         for key, f in locs.items():
             if type(f) == sqlalchemy.ext.declarative.api.DeclarativeMeta and hasattr(f, '__tablename__'):
                 forjaria.forge_base(f)
+
+        if forjar_extras is not None:
+            forjar_extras(forjaria)
         forjaria.print_results()
     return default_main
 

@@ -4,6 +4,11 @@ import datetime
 engine_url = 'sqlite:///monkdesk.db'
 
 from forjar import *
+from forjar.generators.text import gen_random_text, gen_noun
+from forjar.generators.users import gen_user_fullname
+from forjar.generators.sites import gen_email
+
+
 stop = datetime.datetime.now()
 #start = stop - datetime.timedelta(days=365)
 start = stop - datetime.timedelta(days=5)
@@ -26,7 +31,7 @@ class Plan(Base):
     __tablename__ = 'plan'
     id = Column(Integer, primary_key=True)
     name = Column(String(20))
-    period = Column(String(20))
+    per = Column(String(20))
     price_per_user = Column(Float, default=0)
 
 
@@ -38,7 +43,7 @@ class Company(Base):
 
     deps = [{'name': 'user_id', 'base': User, 'date': 'date'}, ]
     def forge(self, session, date=None, basetime=None):
-        self.name = get_noun() + 's'
+        self.name = gen_noun() + 's'
 
     def post_forge(self, session, date=None, basetime=None):
         user = User(forgesession=session, date=date, basetime=basetime)
@@ -124,13 +129,15 @@ class Attachment(Base):
 
     def forge(self, session, basetime):
         self.ticketcomment_id = get_random(TicketComment, session, basetime=basetime)
-        self.image = get_noun() + '.png'
+        self.image = gen_noun() + '.png'
 
-Plan(name='Regular', price_per_user='24.00', period='month', basetime=None)
-Plan(name='Plus', price_per_user='49.00',  period='month', basetime=None)
-Plan(name='Enterprise', price_per_user='99.00', period='month', basetime=None)
+
+
+def forjar_extras(forjaria):
+    Plan(name='Regular', price_per_user='24.00', per='month', forgesession=forjaria.session, basetime=None)
+    Plan(name='Plus', price_per_user='49.00',  per='month', forgesession=forjaria.session, basetime=None)
+    Plan(name='Enterprise', price_per_user='99.00', per='month', forgesession=forjaria.session, basetime=None)
+
 
 if __name__ == "__main__":
-    forjar_main(main=default_main, start=start, stop=stop)
-
-
+    forjar_main(main=gen_default_main(locals(), forjar_extras),)

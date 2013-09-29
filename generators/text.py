@@ -6,4 +6,4 @@ def gen_noun():
     return random.choice(nouns)
 
 def gen_random_text(low_length=1, high_length=10):
-    return ' '.join([get_noun() for a in range(0, random.randint(low_length, high_length))])
+    return ' '.join([gen_noun() for a in range(0, random.randint(low_length, high_length))])
