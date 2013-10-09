@@ -59,6 +59,10 @@ def get_random(Table, session, basetime=None, after=None, choicefunc=get_random_
     if date is not None:
         if date_index.get(Table.__tablename__, {}).get(date):
             rand_id = random.randint(0, date_index[Table.__tablename__][date]) + 1
+            if rand_id == 0:
+                rand_id = 1
+            else:
+                rand_id == rand_id
             return rand_id
         else:
             query = query.filter(Table.date < date)
@@ -67,7 +71,11 @@ def get_random(Table, session, basetime=None, after=None, choicefunc=get_random_
             date_index[Table.__tablename__][date] = cnt
 
     cnt = cnt or query.count() or 1
-    rand_id = get_random_choice(cnt) + 1
+    rand_id = get_random_choice(cnt)
+    if rand_id == 0:
+        rand_id = 1
+    else:
+        rand_id = rand_id
     return rand_id
 
 def get_last(Table):
