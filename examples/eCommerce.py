@@ -5,7 +5,7 @@ from forjar import *
 from forjar.generators.users import gen_firstname, gen_lastname, gen_user_fullname
 from forjar.generators.addr import gen_address
 from forjar.generators.sites import gen_email
-from forjar.generators.text import gen_nouns, gen_noun
+from forjar.generators.text import gen_random_text, gen_noun
     
 class Users(Base):
     __tablename__ = 'Users'
@@ -113,7 +113,7 @@ class Products(Base):
     Reviews = Column(Integer)
     upid = Column(String(40))
     def forge(self, session, basetime, date, **kwargs):
-        self.Title = gen_nouns()
+        self.Title = gen_random_text(2,5,True)
         self.Description = 'Product Description Omitted'
         self.Vendor_ID = random.randint(1000, 100000)
         self.Category = random.choice(['Aeronautics', 'Pets', 'Farming', 'Sports', 'Literature'])
