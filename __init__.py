@@ -58,7 +58,7 @@ def get_random(Table, session, basetime=None, after=None, choicefunc=get_random_
     cnt = None
     if date is not None:
         if date_index.get(Table.__tablename__, {}).get(date):
-            rand_id = random.randint(0, date_index[Table.__tablename__][date]) + 1
+            rand_id = random.randint(0, date_index[Table.__tablename__][date])
             if rand_id == 0:
                 rand_id = 1
             else:
