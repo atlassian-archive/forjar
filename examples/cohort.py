@@ -7,8 +7,6 @@ stop = datetime.datetime.now()
 start = stop - datetime.timedelta(days=30*8)
 start = stop - datetime.timedelta(days=5)
 
-from forjar.generators.users import gen_firstname
-
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
@@ -21,7 +19,7 @@ class User(Base):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return 2*pow(1.05, i)
+        return 2*pow(i, 1.05)
 
     variance = ntimes
 
@@ -44,9 +42,15 @@ class Event(Base):
     period = DAY
     @classmethod
     def ntimes(self, i, time):
-        return pow(1.06, i)
+        return pow(i, 1.06)
 
     variance = ntimes
 
+
+def main(forjar):
+    forjar.forge_base(User)
+    forjar.forge_base(Event)
+    forjar.print_results()
+
 if __name__ == "__main__":
-    forjar_main(main=gen_default_main(locals()),)
+    forjar_main(main=main, start=start, stop=stop)
