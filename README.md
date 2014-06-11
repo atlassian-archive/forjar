@@ -1,3 +1,9 @@
+**Warning:** We don't use this code anymore.  We've switched to a combination of faker and factory boy.  Check them both out here:
+
+ - [faker](https://github.com/joke2k/faker)
+ - [factory boy](https://github.com/rbarrois/factory_boy)
+
+
 Forjar
 =========
 
